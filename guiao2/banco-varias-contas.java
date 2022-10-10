@@ -4,23 +4,47 @@ class Bank {
 
   private static class Account {
     private int balance;
-    Account(int balance) { this.balance = balance; }
+    private ReentrantLock l;
+    Account(int balance) { 
+      this.balance = balance; 
+      this.l = new ReentrantLock();
+    }
 
 
-    int balance() { return balance; }
+    int balance() { 
+      l.lock();
+      try{
+        return balance;
+      }finally{
+        l.unlock();
+      }
+    }
 
 
     boolean deposit(int value) {
-      balance += value;
-      return true;
+      l.lock();
+      try{
+        balance += value;
+        return true;
+      }finally{
+        l.unlock();
+      }
+      
     }
 
 
     boolean withdraw(int value) {
       if (value > balance)
         return false;
-      balance -= value;
-      return true;
+
+      l.lock();
+      try{
+        balance -= value;
+        return true;
+      }finally{
+        l.unlock();
+      }
+      
     }
   }
 
@@ -41,38 +65,24 @@ class Bank {
   public int balance(int id) {
     if (id < 0 || id >= slots)
       return 0;
-    
-    l.lock();
-    try{
-      return av[id].balance();
-    } finally{
-      l.unlock();
-    }
-    
+
+    return av[id].balance();
   }
 
   // Deposit
   boolean deposit(int id, int value) {
     if (id < 0 || id >= slots)
       return false;
-    l.lock();
-    try{
-      return av[id].deposit(value);
-    } finally{
-      l.unlock();
-    }
+    
+    return av[id].deposit(value);
   }
 
   // Withdraw; fails if no such account or insufficient balance
   public boolean withdraw(int id, int value) {
     if (id < 0 || id >= slots)
       return false;
-    l.lock();
-    try{
-      return av[id].withdraw(value);
-    } finally{
-      l.unlock();
-    }
+    
+    return av[id].withdraw(value);
   }
 
   public boolean transfer (int from, int to, int value){
