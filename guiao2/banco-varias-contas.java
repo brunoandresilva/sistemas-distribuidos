@@ -34,10 +34,11 @@ class Bank {
 
 
     boolean withdraw(int value) {
+      l.lock();
       if (value > balance)
         return false;
 
-      l.lock();
+      
       try{
         balance -= value;
         return true;
@@ -89,11 +90,26 @@ class Bank {
     if (from < 0 || from >= slots || to < 0 || to >= slots)
       return false;
 
-    l.lock();
+    if(from < to){
+      av[from].l.lock();
+      av[to].l.lock();
+    }
+    else{
+      av[to].l.lock();
+      av[from].l.lock();
+    }
+
     try{
       return this.withdraw(from, value) && this.deposit(to, value);
     }finally{
-      l.unlock();
+      if(from < to){
+        av[to].l.unlock();
+        av[from].l.unlock();
+      }
+      else{
+        av[to].l.unlock();
+        av[from].l.unlock();
+      }
     }
   }
 
