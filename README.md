@@ -1,4 +1,3 @@
 # sistemas-distribuidos
 
-
-FALTA O GUIAO 1 E O EX3 DO 2 ESTA INCOMPLETO (FALTA MUDAR O METODO totalBalance())
+guiao 3 falta o ex3
