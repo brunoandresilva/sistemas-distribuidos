@@ -1,5 +1,7 @@
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class Bank {
 
@@ -44,7 +46,9 @@ class Bank {
 
     private Map<Integer, Account> map = new HashMap<Integer, Account>();
     private int nextId = 0;
-    private ReentrantLock lock_bank;
+    private ReentrantReadWriteLock lock_bank;
+    private Lock rl = lock_bank.readLock();
+    private Lock wl = lock_bank.writeLock();
 
     public Bank(){
         this.lock_bank = new ReentrantLock();
@@ -88,6 +92,7 @@ class Bank {
     // account balance; 0 if no such account
     public int balance(int id) {
         Account c = map.get(id);
+        rl.lock();
         if (c == null)
             return 0;
         return c.balance();
