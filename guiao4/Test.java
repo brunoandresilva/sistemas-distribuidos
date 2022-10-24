@@ -7,6 +7,7 @@ class Barrier{
     private int counter;
     private Lock l;
     private Condition cond;
+    private int epoch;
 
     Barrier(int T){
         this.T = T;
@@ -18,23 +19,28 @@ class Barrier{
     void waitforit() throws InterruptedException{
         this.l.lock();
         try{
+            int e = epoch;
             this.counter += 1;
             System.out.println("counter: " + this.counter);
 
             if(this.counter < this.T){
-                while(this.counter < this.T){
+                while(epoch == e){
                     this.cond.await();
                 }
             }else{
                 cond.signalAll();
+                this.counter = 0;
+                this.epoch += 1;
             }
         }finally{
             this.l.unlock();
         }
-        
-        
 
     }
+
+    
+
+    
 }
 
 class Client implements Runnable{
@@ -59,7 +65,7 @@ class Client implements Runnable{
 
 public class Test {
     public static void main(String[] args) {
-        int NT = 7;
+        int NT = 15;
         Thread [] threads = new Thread[NT];
         Barrier b = new Barrier(5);
 
@@ -70,6 +76,7 @@ public class Test {
 
         for(int i = 0; i < NT; i++){
             threads[i].start();
+            
         }
 
         for(int i = 0; i < NT; i++){
