@@ -20,21 +20,39 @@ class Barrier{
         this.l.lock();
         try{
             int e = epoch;
-            this.counter += 1;
-            System.out.println("counter: " + this.counter);
-
-            if(this.counter < this.T){
-                while(epoch == e){
-                    this.cond.await();
-                }
-            }else{
+            c += 1;
+            if(c < n)
+                while(epoch == e)
+                    cond.await();
+            else{
                 cond.signalAll();
-                this.counter = 0;
-                this.epoch += 1;
+                c = 0;
+                eposh += 1;
             }
         }finally{
             this.l.unlock();
         }
+        
+        
+        //old version
+        // this.l.lock();
+        // try{
+        //     int e = epoch;
+        //     this.counter += 1;
+        //     System.out.println("counter: " + this.counter);
+
+        //     if(this.counter < this.T){
+        //         while(epoch == e){
+        //             this.cond.await();
+        //         }
+        //     }else{
+        //         cond.signalAll();
+        //         this.counter = 0;
+        //         this.epoch += 1;
+        //     }
+        // }finally{
+        //     this.l.unlock();
+        // }
 
     }
 
