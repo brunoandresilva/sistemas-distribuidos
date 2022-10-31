@@ -20,14 +20,14 @@ class Barrier{
         this.l.lock();
         try{
             int e = epoch;
-            c += 1;
-            if(c < n)
+            this.counter += 1;
+            if(this.counter < this.T)
                 while(epoch == e)
                     cond.await();
             else{
                 cond.signalAll();
-                c = 0;
-                eposh += 1;
+                this.counter = 0;
+                epoch += 1;
             }
         }finally{
             this.l.unlock();
